@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Survey Loop</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="hero">
+    <div class="hero-content">
+      <h1>Get Free Robux by completing surveys!</h1>
+      <p>Earn Robux for your Roblox account with quick and easy surveys</p>
+      <div class="cta-buttons">
+        <button class="btn btn-primary">Explore</button>
+        <button class="btn btn-secondary">Create</button>
+      </div>
+      <div class="stats">
+        <span>100K+ Surveys</span>
+        <span>50M+ Robux Paid</span>
+        <span>1M+ Happy Users</span>
+      </div>
+    </div>
+  </header>
+
+  <section class="survey-section">
+    <h2>Available Surveys</h2>
+    <div class="survey-grid" id="surveys"></div>
+  </section>
+
+  <footer class="testimonial-section">
+    <h2>What Our Customers Say</h2>
+    <div class="testimonials">
+      <div class="testimonial">
+        <strong>John D.</strong>
+        <p>"The surveys are quick and easy to complete..."</p>
+      </div>
+      <div class="testimonial">
+        <strong>Sarah M.</strong>
+        <p>"Helped me get the Robux I needed for game dev. Recommended!"</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const TOTAL_SURVEYS = 5;
+    const REQUIRED_TO_ADVANCE = 3;
+    let currentCycle = parseInt(localStorage.getItem('cycle') || '1');
+    let completed = JSON.parse(localStorage.getItem('completedSurveys') || '[]');
+
+    function save() {
+      localStorage.setItem('completedSurveys', JSON.stringify(completed));
+    }
+
+    function getCompletedThisCycle() {
+      const start = (currentCycle - 1) * TOTAL_SURVEYS + 1;
+      const end = start + TOTAL_SURVEYS - 1;
+      return completed.filter(x => x >= start && x <= end);
+    }
+
+    function markComplete(surveyNum) {
+      if (!completed.includes(surveyNum)) {
+        completed.push(surveyNum);
+        save();
+        const done = getCompletedThisCycle().length;
+        if (done >= REQUIRED_TO_ADVANCE) {
+          currentCycle += 1;
+          localStorage.setItem('cycle', currentCycle);
+        }
+        renderSurveys();
+      }
+    }
+
+    function renderSurveys() {
+      const container = document.getElementById('surveys');
+      container.innerHTML = '';
+      for (let i = 1; i <= TOTAL_SURVEYS; i++) {
+        const surveyNum = (currentCycle - 1) * TOTAL_SURVEYS + i;
+        const div = document.createElement('div');
+        div.className = 'survey-card' + (completed.includes(surveyNum) ? ' complete' : '');
+        div.innerHTML = `
+          <div class="icon">📋</div>
+          <h3>Survey ${i}</h3>
+          <p>5 min — 500 Robux</p>
+          <iframe src="https://www.cpalead.com/dashboard/offerwall.php?pub=YOUR_ID&subid=survey${surveyNum}" width="100%" height="120px" style="border:none;"></iframe>
+          <button class="btn-small" onclick="markComplete(${surveyNum})">✔ Mark Completed</button>
+        `;
+        container.appendChild(div);
+      }
+    }
+
+    renderSurveys();
+  </script>
+</body>
+</html>
